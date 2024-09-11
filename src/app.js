@@ -24,8 +24,8 @@ function App({ store }) {
             <div key={item.code} className="List-item">
               <div
                 className={'Item' + (item.selected ? ' Item_selected' : '')}
-                onClick={() => store.selectItem(item.code)}
-              >
+                onClick={() => store.selectItem(item.code)} 
+              > 
                 <div className="Item-code">{item.code}</div>
                 <div className="Item-title">{item.title}</div>
                 <div className="Item-actions">
