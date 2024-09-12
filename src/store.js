@@ -4,8 +4,12 @@
 class Store {
   constructor(initState = {}) {
     this.state = initState;
-    this.listeners = []; // Слушатели изменений состояния
-    this.lastCode = Math.max(0, ...this.state.list.map(item => item.code))
+    this.listeners = [];
+    this.lastCode = Math.max(0, ...this.state.list.map(item => item.code)); 
+    this.state.list = this.state.list.map(item => ({
+      ...item,
+      selectCount: 0,
+    }));
   }
 
   /**
@@ -15,7 +19,6 @@ class Store {
    */
   subscribe(listener) {
     this.listeners.push(listener);
-    // Возвращается функция для удаления добавленного слушателя
     return () => {
       this.listeners = this.listeners.filter(item => item !== listener);
     };
@@ -35,7 +38,6 @@ class Store {
    */
   setState(newState) {
     this.state = newState;
-    // Вызываем всех слушателей
     for (const listener of this.listeners) listener();
   }
 
@@ -43,10 +45,18 @@ class Store {
    * Добавление новой записи
    */
   addItem() {
-    this.lastCode += 1
+    this.lastCode += 1; 
     this.setState({
       ...this.state,
-      list: [...this.state.list, { code: this.lastCode, title: 'Новая запись' }],
+      list: [
+        ...this.state.list,
+        { 
+          code: this.lastCode, 
+          title: 'Новая запись', 
+          selected: false,    
+          selectCount: 0      
+        }
+      ],
     });
   }
 
@@ -62,16 +72,26 @@ class Store {
   }
 
   /**
- * Выделение записи по коду
- * @param code
- */
+   * Выделение записи по коду
+   * @param code
+   */
   selectItem(code) {
     this.setState({
       ...this.state,
-      list: this.state.list.map(item => ({
-        ...item,
-        selected: item.code === code ? !item.selected : false, 
-      })),
+      list: this.state.list.map(item => {
+        if (item.code === code) {
+          const isSelected = !item.selected;
+          return {
+            ...item,
+            selected: isSelected,
+            selectCount: isSelected ? item.selectCount + 1 : item.selectCount, 
+          };
+        }
+        return {
+          ...item,
+          selected: false, 
+        };
+      }),
     });
   }
 }
